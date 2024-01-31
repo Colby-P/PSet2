@@ -1,0 +1,156 @@
+---
+title: "Problem Set 2"
+author: "Colby Pastel"
+date: "2024-01-29"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  eval = TRUE,
+  fig.align = 'center',
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+1. [enter url here]
+
+2. See the corrected code chunck below. A total of 8 changes were made.
+
+```{r}
+library(tidyverse)
+
+# open my data
+gspace = read_csv('greenspace_data_share.csv') # missing quotation marks (1)
+
+# summarize average urban greenspace by region
+tab1 = # Renamed "table" to "tabl" to prevent confusion with tidyverse command (2)
+  gspace |>
+    group_by(Major_Geo_Region) |> # added a pipe (3)
+      summarise(
+        obs = n(), # added a comma (4)
+        avg = mean(annual_avg_2020), # added an underscore (5)
+        weighted_avg = mean(annual_weight_avg_2020) # changed a space to an underscore (6)
+      )
+
+# output as table
+knitr::kable(tab1, digits = 1) # added "knitr::" (7), changed "gspace" to "tab1" (8)
+```
+
+3. The greenspace data covers **1,038** urban areas.
+
+```{r}
+dim(gspace)
+#str(gspace)
+#unique(gspace$City)
+```
+
+4. The mean average greenspace for urban areas in 2021 was 0.280 and the 
+average greenspace ranged from 0.045 to 0.630. The median and mean average 
+greenspace were identical, 0.280.   
+
+```{r}
+summary(gspace$annual_avg_2021, digits = 2)
+```
+
+5.a. The number of urban areas which Scored High or above for greenspace in 
+2015 was **66**.
+
+```{r}
+gspace |>
+  filter(
+    indicator_2015 == 'High' | 
+    indicator_2015 == 'Very High'
+  ) |>
+  count()
+```
+
+5.b. The number of urban areas which Scored Exceptionally Low at any point in 
+the years covered was **240**.
+
+```{r}
+gspace |>
+  filter(
+    indicator_2010 == 'Exceptionally Low' | 
+    indicator_2015 == 'Exceptionally Low'| 
+    indicator_2020 == 'Exceptionally Low' |
+    indicator_2021 == 'Exceptionally Low',
+    ) |>
+  count()
+```
+
+5.c. The number of urban areas with arid climates that became greener from 
+2010 to 2020 was **225**.
+
+```{r}
+gspace |>
+  filter(
+    Climate_region == 'Arid',
+    annual_weight_avg_2020 > annual_weight_avg_2010
+  ) |>
+  count()
+```
+
+6. **128** urban areas became less green from 2010 to 2021. These changes were 
+concentrated in Europe and Asia, and urban areas with climates besides arid and 
+polar.
+
+```{r}
+gspace |>
+  filter(
+    annual_avg_2010 > annual_avg_2021
+  ) |>
+  count()
+
+tab2 =
+  gspace |>
+    filter(
+      annual_avg_2010 > annual_avg_2021
+    )
+  
+tab2 |>
+  count(Major_Geo_Region, name = 'Freq')
+
+tab2 |>
+  count(Climate_region, name = 'Freq')
+```
+\newpage
+
+7. See histogram below.
+
+```{r}
+tab3 =
+  gspace |> 
+    summarize(
+      gspace_2010 = annual_avg_2010,
+      gspace_2021 = annual_avg_2021,
+      Diff = annual_avg_2021 - annual_avg_2010
+    )
+
+hist(tab3$Diff, 
+     main = 'Histogram (2010 - 2021)', 
+     xlab = 'Change in Greenspace')
+```
+\newpage
+
+8. See scatter plot below.
+
+```{r}
+plot(gspace_2021 ~ gspace_2010, tab3, 
+     main = 'Population Weighted Greenspace', 
+     xlab = 'Avg 2010',
+     ylab = 'Avg 2021')
+```
+\newpage
+
+Bonus Opportunity: See scatter plot below.
+
+```{r}
+plot(gspace_2021 ~ gspace_2010, tab3, 
+     col = ifelse(Diff > 0, 'darkgreen', 'black'), 
+     main = 'Population Weighted Greeenspace', 
+     xlab = 'Avg 2010', ylab = 'Avg 2021')
+abline(0,1, col = 'red')
+```
