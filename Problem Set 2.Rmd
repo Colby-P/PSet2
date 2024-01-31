@@ -15,9 +15,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-1. [enter url here]
+1. https://github.com/Colby-P/PSet2.git
 
-2. See the corrected code chunck below. A total of 8 changes were made.
+2. See the corrected code chunk below. A total of 8 changes were made.
 
 ```{r}
 library(tidyverse)
